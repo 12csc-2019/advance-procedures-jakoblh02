@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import vlc
+import time
 
 # Constants
 WIDTH = 1000
@@ -19,9 +20,9 @@ FONT = "Sans-Serif"
 # Variables
 songPlaying = False
 numAI = 2
-hand = []
-playersHand = []
-player = []
+drawCard = ''
+canPlayCard = False
+chosenCard = ''
 
 junoMain = tk.Tk()
 junoMain.title("Juno - The Card Game of the Gods")
@@ -81,7 +82,8 @@ def ruleBook():
 
 music = button('♪', playMusic, CEN_X / 6, CEN_Y)
 ruleBookMenu = button('?', ruleBook, CEN_X / 6, CEN_Y / 2)
-creditMenu = button('☀', creditsPage, CEN_X / 6, CEN_Y + (CEN_Y / 2))
+creditMenu = button('Credits', creditsPage, CEN_X / 6, CEN_Y + (CEN_Y / 2))
+creditMenu.config(font=(FONT, 12))
 
 startMenu = tk.Frame(
     master=window,
@@ -151,37 +153,112 @@ numAILabel.place(
 
 
 def game():
-    global playersHand
-
+    userHand = ['Human']
+    robots = []
+    players = [userHand]
+    gameRunning = True
     class Card:
         def __init__(self):
             i = random.randint(0, 14)
             numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'R', 'S', 'D', 'W', 'W4']
             self.number = numbers[i]
             if self.number != 'W' and self.number != 'W4':
-                i = random.randint(0, 3)
+                j = random.randint(0, 3)
                 colors = ['yellow', 'blue', 'red', 'green']
-                self.color = colors[i]
+                self.color = colors[j]
+                self.text = 'black'
             else:
                 self.color = 'black'
-    # Give all the players there cards
-    for i in range(numAI+1):
-        player.append([])
-        hand.append([])
-        for j in range(7):
-            hand[i].append(Card)
-    r = random.randint(0,6)
-    playersHand = hand[r]
-    # Pick a random person to start
-    s = random.randint(0,numAI)
-    startingPlayer = player[s]
-    # Random Card pulled from deck put to top of deck
-    topCard = Card
-    # Player can pick from playable cards in their hand
-    # Any Action associated with that card happens
-    # Move to next player
-    # Repeat
+                self.text ='white'
 
+    def topCard(card):
+        displayCard = tk.Button(
+            master=window,
+            image=PIXEL,
+            compound='c',
+            width=130,
+            height=200,
+            text=card.number,
+            bg=card.color,
+            fg=card.text,
+            font=(FONT, 100)
+        )
+        displayCard.place(
+            x=CEN_X,
+            y=CEN_Y,
+            anchor='center'
+        )
+    def playUserCard():
+        global canPlayCard
+        if canPlayCard:
+            topCard(chosenCard)
+            canPlayCard = False
+
+
+    def displayUserCards():
+        for i in range(len(userHand)):
+            if not userHand[i] == 'Human':
+                card = tk.Button(
+                    master=window,
+                    image=PIXEL,
+                    compound='c',
+                    height=80,
+                    width=50,
+                    text=userHand[i].number,
+                    bg=userHand[i].color,
+                    fg=userHand[i].text,
+                    font=(FONT,40),
+                    command=playUserCard
+                )
+                card.place(
+                    x=CEN_X + ((i - 4) * 100),
+                    y=CEN_Y + (CEN_Y / 2) + 50,
+                    anchor='center'
+                )
+            chosenCard = userHand[i]
+
+    def gameStart():
+        topCard(Card())
+        for i in range(7):
+            userHand.append(Card())
+        for j in range(numAI):
+            robots.append([])
+            for k in range(7):
+                robots[j].append(Card())
+        for l in range(numAI):
+            players.append(robots[l])
+        displayUserCards()
+
+    def playCard():
+        canPlayCard = True
+        displayUserCards()
+        time.sleep(30)
+
+
+    def robotPickCard(robot):
+        r = random.randint(0, len(robot)-1)
+        topCard(robot[r])
+        print(robot[r].color, robot[r].number)
+
+    def gameLoop():
+        r = random.randint(0, numAI)
+        while True:
+            junoMain.update()
+            player = players[r]
+            print(player[0]=='Human')
+            if player[0] == 'Human':
+                playCard()
+            else:
+                time.sleep(2)
+                robotPickCard(player)
+            if r == numAI:
+                r = 0
+            else:
+                r += 1
+
+
+    gameStart()
+    gameLoop()
 
 def changeScreen():
     for child in window.winfo_children():
