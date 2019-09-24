@@ -77,12 +77,49 @@ def creditsPage():
 
 
 def ruleBook():
-    print("")
+    rulesbg = tk.Frame(
+        master=junoMain,
+        width=WIDTH/2+10,
+        height=HEIGHT-10,
+        bg=COLOR_4
+    )
+    rulesbg.place(
+        x=CEN_X,
+        y=CEN_Y,
+        anchor='center'
+    )
+    rules = tk.Frame(
+        master=junoMain,
+        width=WIDTH/2,
+        height=HEIGHT-20,
+        bg=COLOR_1
+    )
+    rules.place(
+        x=CEN_X,
+        y=CEN_Y,
+        anchor='center'
+    )
+    rulesTitle = tk.Label(
+        master=junoMain,
+        image=PIXEL,
+        compound='c',
+        text='Rules of Juno',
+        font=(FONT, 20),
+        bg=COLOR_1
+    )
+    rulesTitle.place(
+        x=CEN_X,
+        y=CEN_Y/5,
+        anchor='center'
+    )
 
+def endProgram():
+    junoMain.destroy()
 
 music = button('♪', playMusic, CEN_X / 6, CEN_Y)
 ruleBookMenu = button('?', ruleBook, CEN_X / 6, CEN_Y / 2)
 creditMenu = button('Credits', creditsPage, CEN_X / 6, CEN_Y + (CEN_Y / 2))
+stopButton = button('X', endProgram, 2*CEN_X-50, 50)
 creditMenu.config(font=(FONT, 12))
 
 startMenu = tk.Frame(
@@ -258,7 +295,7 @@ def game():
 
 
     gameStart()
-    gameLoop()
+    #gameLoop()
 
 def changeScreen():
     for child in window.winfo_children():
