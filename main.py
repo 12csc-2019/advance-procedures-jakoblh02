@@ -262,7 +262,7 @@ def game():
         currentTopCard = card
 
     def chooseChosenCard(card, i):
-        global chosenCard 
+        global chosenCard
         chosenCard = card
         playerCards[i].destroy()
         userHand.pop(i-1)
@@ -355,13 +355,15 @@ def game():
 
     def robotPickCard(robot):
         global currentTopCard
+        i = 0
         for c in range(len(robot)-1):
-            print(c)
-            print(robot[c].color)
             if robot[c].color == currentTopCard.color or robot[c].number == currentTopCard.number or robot[c].color == 'black':
                 topCard(robot[c])
                 robot.pop(c)
                 break
+            elif i > len(robot):
+                robot.append(Card())
+            i = i+1
 
     def gameLoop():
         global currentTopCard
@@ -384,7 +386,8 @@ def game():
                 playCard()
                 yourTurn.destroy()
             else:
-                time.sleep(2)
+                randomTime = random.randint(2,5)
+                time.sleep(randomTime)
                 robotPickCard(player)
                 for q in range(len(players)):
                     numRobotCards[q-1].config(
