@@ -225,7 +225,6 @@ def game():
     userHand = ['Human']
     robots = []
     players = [userHand]
-    numRobotCards = []
     playerCards = []
     class Card:
         def __init__(self):
@@ -244,16 +243,34 @@ def game():
     currentTopCard = Card()
 
     def topCard(card):
+        fontSize = 100
+        changeDisplayedCharacter = ['R', 'S', 'D', 'W', 'W4']
+        if card.number in changeDisplayedCharacter:
+            if card.number == 'R':
+                cardText = '↻'
+            elif card.number == 'S':
+                cardText = 'Ø'
+            elif card.number == 'D':
+                cardText = '+2'
+                fontSize = 90
+            elif card.number == 'W':
+                cardText = 'WILD'
+                fontSize = 40
+            elif card.number == 'W4':
+                cardText = '+4'
+                fontSize = 90
+        else:
+            cardText = card.number
         displayCard = tk.Button(
             master=window,
             image=PIXEL,
             compound='c',
             width=130,
             height=200,
-            text=card.number,
+            text=cardText,
             bg=card.color,
             fg=card.text,
-            font=(FONT, 100)
+            font=(FONT, fontSize)
         )
         displayCard.place(
             x=CEN_X,
@@ -278,16 +295,34 @@ def game():
     def displayUserCards():
         for i in range(len(userHand)):
             if userHand[i] != 'Human':
+                fontSize = 40
+                changeDisplayedCharacter = ['R', 'S', 'D', 'W', 'W4']
+                if userHand[i].number in changeDisplayedCharacter:
+                    if userHand[i].number == 'R':
+                        cardText = '↻'
+                    elif userHand[i].number == 'S':
+                        cardText = 'Ø'
+                    elif userHand[i].number == 'D':
+                        cardText = '+2'
+                        fontSize = 35
+                    elif userHand[i].number == 'W':
+                        cardText = 'WILD'
+                        fontSize = 15
+                    elif userHand[i].number == 'W4':
+                        cardText = '+4'
+                        fontSize = 35
+                else:
+                    cardText = userHand[i].number
                 card = tk.Button(
                     master=window,
                     image=PIXEL,
                     compound='c',
                     height=80,
                     width=50,
-                    text=userHand[i].number,
+                    text=cardText,
                     bg=userHand[i].color,
                     fg=userHand[i].text,
-                    font=(FONT,40),
+                    font=(FONT,fontSize),
                     command=partial(chooseChosenCard, userHand[i], i)
                 )
                 card.place(
@@ -318,8 +353,6 @@ def game():
         for l in range(numAI):
             players.append(robots[l])
         displayUserCards()
-        for m in range(len(robots)):
-            numRobotCards.append(button(len(robots[m]), doesntDoAnything, CEN_X+(m*60)+200, CEN_Y))
 
     def playCard():
         displayUserCards()
@@ -364,18 +397,20 @@ def game():
     def robotPickCard(robot):
         global currentTopCard
         i = 0
-        for c in range(len(robot)-1):
+        for c in range(len(robot)):
             if robot[c].color == currentTopCard.color or robot[c].number == currentTopCard.number or robot[c].color == 'black':
                 if robot[c].color == 'black':
+                    colors = ['red', 'green', 'blue', 'yellow']
+                    randomColor = random.randint(0, 3)
+                    robot[c].color = colors[randomColor]
                     topCard(robot[c])
                     robot.pop(c)
-                    colors = ['red','green','blue','yellow']
-                    randomColor = random.randint(0,3)
-                    currentTopCard.color = colors[randomColor]
+                    junoMain.update()
                     break
                 else:
                     topCard(robot[c])
                     robot.pop(c)
+                    junoMain.update()
                     break
             elif i > len(robot):
                 robot.append(Card())
@@ -388,6 +423,9 @@ def game():
         r = random.randint(0, numAI)
         noWinner = True
         while noWinner:
+            for p in range(len(players):
+                if players[p][0] != 'Human':
+                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X+200, CEN_Y)
             if currentTopCard.number == 'S':
                 skipTurn = True
             junoMain.update()
@@ -418,13 +456,9 @@ def game():
                     skipTurn = False
                     currentTopCard.number = 'Z'
                 else:
-                    randomTime = 2
+                    randomTime = 3
                     time.sleep(randomTime)
                     robotPickCard(player)
-                    for q in range(len(players)):
-                        numRobotCards[q-1].config(
-                            text=len(players[q])
-                        )
             for t in range(len(players)):
                 if players[0] != "Human":
                     if len(players[t]) == 0:
