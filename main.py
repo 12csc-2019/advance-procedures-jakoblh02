@@ -22,8 +22,10 @@ FONT = "Sans-Serif"
 songPlaying = False
 numAI = 2
 drawCard = ''
+drawButtonNotPressed = True
 canPlayCard = False
 chosenCard = ' '
+skipTurn = False
 
 junoMain = tk.Tk()
 junoMain.title("Juno - The Card Game of the Gods")
@@ -262,15 +264,20 @@ def game():
         currentTopCard = card
 
     def chooseChosenCard(card, i):
+        global currentTopCard
         global chosenCard
-        chosenCard = card
-        playerCards[i].destroy()
-        userHand.pop(i-1)
+        if card.color != currentTopCard.color and card.number != currentTopCard.number and card.color != 'black':
+            chosenCard = ' '
+        else:
+            chosenCard = card
+            for c in playerCards:
+                c.destroy()
+            userHand.pop(i)
 
 
     def displayUserCards():
         for i in range(len(userHand)):
-            if not userHand[i] == 'Human':
+            if userHand[i] != 'Human':
                 card = tk.Button(
                     master=window,
                     image=PIXEL,
@@ -293,8 +300,12 @@ def game():
     def doesntDoAnything():
         print("Doesn't Do Anything")
 
-    def drawACard(player):
-        player.append(Card())
+    def drawACard():
+        global drawButtonNotPressed
+        drawButtonNotPressed = False
+        userHand.append(Card())
+        junoMain.update()
+        displayUserCards()
 
     def gameStart():
         topCard(currentTopCard)
@@ -309,13 +320,10 @@ def game():
         displayUserCards()
         for m in range(len(robots)):
             numRobotCards.append(button(len(robots[m]), doesntDoAnything, CEN_X+(m*60)+200, CEN_Y))
-        drawButton = button("DRAW",partial(drawACard, userHand), CEN_X/2, CEN_Y)
-        drawButton.config(
-            width=170
-        )
 
     def playCard():
         displayUserCards()
+        global drawButtonNotPressed
         global chosenCard
         global currentTopCard
         continueWaiting = True
@@ -332,8 +340,7 @@ def game():
             y=CEN_Y/2,
             anchor='center'
         )
-
-        while continueWaiting:
+        while continueWaiting and drawButtonNotPressed:
             junoMain.update()
             timeLeft = (30 - round((time.time() - oldtime)))
             countdown.config(
@@ -352,47 +359,72 @@ def game():
                 topCard(userHand[r])
                 countdown.destroy()
                 displayUserCards()
+        drawButtonNotPressed = True
 
     def robotPickCard(robot):
         global currentTopCard
         i = 0
         for c in range(len(robot)-1):
             if robot[c].color == currentTopCard.color or robot[c].number == currentTopCard.number or robot[c].color == 'black':
-                topCard(robot[c])
-                robot.pop(c)
-                break
+                if robot[c].color == 'black':
+                    topCard(robot[c])
+                    robot.pop(c)
+                    colors = ['red','green','blue','yellow']
+                    randomColor = random.randint(0,3)
+                    currentTopCard.color = colors[randomColor]
+                    break
+                else:
+                    topCard(robot[c])
+                    robot.pop(c)
+                    break
             elif i > len(robot):
                 robot.append(Card())
-            i = i+1
+            i += 1
 
     def gameLoop():
+        global skipTurn
+        global drawButton
         global currentTopCard
         r = random.randint(0, numAI)
         noWinner = True
         while noWinner:
+            if currentTopCard.number == 'S':
+                skipTurn = True
             junoMain.update()
             player = players[r]
             if player[0] == 'Human':
-                yourTurn = tk.Label(
-                    master=junoMain,
-                    text="Your Turn!",
-                    font=(FONT, 30)
-                )
-                yourTurn.place(
-                    x=CEN_X,
-                    y=CEN_Y / 4,
-                    anchor='center'
-                )
-                playCard()
-                yourTurn.destroy()
-            else:
-                randomTime = random.randint(2,5)
-                time.sleep(randomTime)
-                robotPickCard(player)
-                for q in range(len(players)):
-                    numRobotCards[q-1].config(
-                        text=len(players[q])
+                if skipTurn:
+                    skipTurn = False
+                    currentTopCard.number = 'Z'
+                else:
+                    drawButton = button("DRAW", drawACard, CEN_X / 2, CEN_Y)
+                    drawButton.config(
+                        width=170
                     )
+                    yourTurn = tk.Label(
+                        master=junoMain,
+                        text="Your Turn!",
+                        font=(FONT, 30)
+                    )
+                    yourTurn.place(
+                        x=CEN_X,
+                        y=CEN_Y / 4,
+                        anchor='center'
+                    )
+                    playCard()
+                    yourTurn.destroy()
+            else:
+                if skipTurn:
+                    skipTurn = False
+                    currentTopCard.number = 'Z'
+                else:
+                    randomTime = 2
+                    time.sleep(randomTime)
+                    robotPickCard(player)
+                    for q in range(len(players)):
+                        numRobotCards[q-1].config(
+                            text=len(players[q])
+                        )
             for t in range(len(players)):
                 if players[0] != "Human":
                     if len(players[t]) == 0:
