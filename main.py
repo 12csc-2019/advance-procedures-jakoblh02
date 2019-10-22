@@ -353,39 +353,80 @@ def game():
         for l in range(numAI):
             players.append(robots[l])
         displayUserCards()
+        numAICardsLabel = tk.Label(
+            master=junoMain,
+            text="AI Card Count:",
+            font=(FONT, 20),
+            bg=COLOR_1
+        )
+        numAICardsLabel.place(
+            x=CEN_X+200,
+            y=CEN_Y-50,
+            anchor='center'
+        )
 
     def playCard():
         displayUserCards()
+        notPickedColor = True
         global drawButtonNotPressed
         global chosenCard
         global currentTopCard
         continueWaiting = True
         oldtime = time.time()
         timeLeft = (30 - (time.time() - oldtime))
-        countdownText = str(timeLeft)
+        countdownText = "Time Left: " + str(timeLeft)
         countdown = tk.Label(
             master=junoMain,
             text=countdownText,
-            font=(FONT,20)
+            font=(FONT,20),
+            bg=COLOR_1
         )
         countdown.place(
             x=CEN_X,
             y=CEN_Y/2,
             anchor='center'
         )
+
+        def colorPickerHandler(color):
+            global notPickedColor
+            global chosenCard
+            global currentTopCard
+            global continueWaiting
+            chosenCard.color = color
+            colorPicker.destroy()
+            topCard(chosenCard)
+            currentTopCard = chosenCard
+            chosenCard = ' '
+            continueWaiting = False
+            countdown.destroy()
+            displayUserCards()
+            notPickedColor = False
+
+        colors = ['red', 'blue', 'green', 'yellow']
+        for i in range(len(colors)):
+            colorPicker = button(str(colors[i]), partial(colorPickerHandler, colors[i]), CEN_X - 300 + (i * 200),
+                                 CEN_Y + 200)
+            colorPicker.config(
+                width=150
+            )
         while continueWaiting and drawButtonNotPressed:
             junoMain.update()
             timeLeft = (30 - round((time.time() - oldtime)))
             countdown.config(
-                text=str(timeLeft)
+                text="Time Left: " + str(timeLeft)
             )
             if chosenCard != ' ':
-                topCard(chosenCard)
-                currentTopCard = chosenCard
-                chosenCard = ' '
-                continueWaiting = False
-                countdown.destroy()
-                displayUserCards()
+                if chosenCard.color == 'black':
+                    while notPickedColor:
+                        print('')
+                else:
+                    topCard(chosenCard)
+                    currentTopCard = chosenCard
+                    chosenCard = ' '
+                    continueWaiting = False
+                    countdown.destroy()
+                    displayUserCards()
+
             if (time.time() - oldtime) > 29:
                 continueWaiting = False
                 r = random.randint(1, len(userHand)-1)
@@ -424,9 +465,13 @@ def game():
         r = random.randint(0, numAI)
         noWinner = True
         while noWinner:
+            try:
+                numberOfCards.destroy()
+            except:
+                print('')
             for p in range(len(players)):
                 if players[p][0] != 'Human':
-                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X+100(p*100), CEN_Y)
+                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X+80+(p*80), CEN_Y)
             if currentTopCard.number == 'S':
                 skipTurn = True
             junoMain.update()
@@ -444,7 +489,8 @@ def game():
                     yourTurn = tk.Label(
                         master=junoMain,
                         text="Your Turn!",
-                        font=(FONT, 30)
+                        font=(FONT, 30),
+                        bg=COLOR_1
                     )
                     yourTurn.place(
                         x=CEN_X,
