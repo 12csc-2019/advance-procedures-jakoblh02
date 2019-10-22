@@ -184,26 +184,22 @@ title.place(
 )
 
 
-def setAINum2():
+def setAINum(i):
     global numAI
-    numAI = 2
-
-
-def setAINum3():
-    global numAI
-    numAI = 3
-
-
-def setAINum4():
-    global numAI
-    numAI = 4
-
-
-setAINum = [setAINum2, setAINum3, setAINum4]
+    numAI = i + 1
+    for j in range(3):
+        if j == i:
+            numAIButtons[j].config(
+                bg=COLOR_1
+            )
+        else:
+            numAIButtons[j].config(
+                bg=COLOR_5
+            )
 
 numAIButtons = ['', '', '']
 for i in range(3):
-    numAIButtons[i] = button(i + 2, setAINum[i], CEN_X + ((i - 1) * 100), CEN_Y + (CEN_Y / 1.4))
+    numAIButtons[i] = button(i + 2, partial(setAINum, i), CEN_X + ((i - 1) * 100), CEN_Y + (CEN_Y / 1.4))
 
 
 numAILabel = tk.Label(
@@ -241,6 +237,10 @@ def game():
                 self.text ='white'
 
     currentTopCard = Card()
+    if currentTopCard.color == 'black':
+        colors = ['red','yellow','green','blue']
+        r = random.randint(0,3)
+        currentTopCard.color = colors[r]
 
     def topCard(card):
         fontSize = 100
@@ -326,7 +326,7 @@ def game():
                     command=partial(chooseChosenCard, userHand[i], i)
                 )
                 card.place(
-                    x=CEN_X + ((i - 4) * 100),
+                    x=CEN_X + ((i - 5) * 100),
                     y=CEN_Y + (CEN_Y / 2) + 50,
                     anchor='center'
                 )
@@ -420,17 +420,19 @@ def game():
         global skipTurn
         global drawButton
         global currentTopCard
+        global chosenCard
         r = random.randint(0, numAI)
         noWinner = True
         while noWinner:
-            for p in range(len(players):
+            for p in range(len(players)):
                 if players[p][0] != 'Human':
-                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X+200, CEN_Y)
+                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X+100(p*100), CEN_Y)
             if currentTopCard.number == 'S':
                 skipTurn = True
             junoMain.update()
             player = players[r]
             if player[0] == 'Human':
+                chosenCard = ' '
                 if skipTurn:
                     skipTurn = False
                     currentTopCard.number = 'Z'
