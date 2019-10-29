@@ -26,6 +26,10 @@ drawButtonNotPressed = True
 canPlayCard = False
 chosenCard = ' '
 skipTurn = False
+reverse = False
+pickUpTwo = False
+pickUpFour = False
+colors = ['red', 'blue', 'green', 'yellow']
 
 junoMain = tk.Tk()
 junoMain.title("Juno - The Card Game of the Gods")
@@ -83,7 +87,6 @@ def ruleBook():
     rules = tk.Toplevel()
     rules.title("Rule Book")
     rules.geometry("771x301")
-    PX = tk.PhotoImage(width=1, height=1)
     rulesbg = tk.Frame(
         master=rules,
         width=WIDTH / 1.3,
@@ -91,8 +94,8 @@ def ruleBook():
         bg=COLOR_4
     )
     rulesbg.place(
-        x=WIDTH/1.3/2,
-        y=300/2,
+        x=WIDTH / 1.3 / 2,
+        y=300 / 2,
         anchor='center'
     )
     rulesfg = tk.Frame(
@@ -103,7 +106,7 @@ def ruleBook():
     )
     rulesfg.place(
         x=WIDTH / 1.3 / 2,
-        y=300/2,
+        y=300 / 2,
         anchor='center'
     )
     rulesTitle = tk.Label(
@@ -113,8 +116,8 @@ def ruleBook():
         bg=COLOR_1
     )
     rulesTitle.place(
-        x=WIDTH/1.3/2,
-        y=300/2-100,
+        x=WIDTH / 1.3 / 2,
+        y=300 / 2 - 100,
         anchor='center'
     )
     rulesText = tk.Label(
@@ -123,7 +126,6 @@ def ruleBook():
         To play a card, it must either match the colour or number of the card on the top of the deck, unless its a wild card which can be placed on any card.
         If a card is not played, you must draw a new card from the deck.
         The player can only play one card at a time.
-        The player must click the JUNO button when they have one card left otherwise they must pick up 2 more cards.
         The winner of the game is the first person to play all their cards.
 
         Action Cards:
@@ -139,8 +141,8 @@ def ruleBook():
     )
 
     rulesText.place(
-        x=WIDTH/1.3/2,
-        y=300/2+20,
+        x=WIDTH / 1.3 / 2,
+        y=300 / 2 + 20,
         anchor='center'
     )
 
@@ -148,10 +150,11 @@ def ruleBook():
 def endProgram():
     junoMain.destroy()
 
+
 music = button('♪', playMusic, CEN_X / 6, CEN_Y)
 ruleBookMenu = button('?', ruleBook, CEN_X / 6, CEN_Y / 2)
 creditMenu = button('Credits', creditsPage, CEN_X / 6, CEN_Y + (CEN_Y / 2))
-stopButton = button('X', endProgram, 2*CEN_X-50, 50)
+stopButton = button('X', endProgram, 2 * CEN_X - 50, 50)
 creditMenu.config(font=(FONT, 12))
 
 startMenu = tk.Frame(
@@ -186,7 +189,7 @@ title.place(
 
 def setAINum(i):
     global numAI
-    numAI = i + 1
+    numAI = i + 2
     for j in range(3):
         if j == i:
             numAIButtons[j].config(
@@ -197,10 +200,10 @@ def setAINum(i):
                 bg=COLOR_5
             )
 
+
 numAIButtons = ['', '', '']
 for i in range(3):
     numAIButtons[i] = button(i + 2, partial(setAINum, i), CEN_X + ((i - 1) * 100), CEN_Y + (CEN_Y / 1.4))
-
 
 numAILabel = tk.Label(
     master=window,
@@ -211,35 +214,36 @@ numAILabel = tk.Label(
     bg=COLOR_3
 )
 numAILabel.place(
-    x=CEN_X/1.6,
-    y=CEN_Y+(CEN_Y/1.4),
+    x=CEN_X / 1.6,
+    y=CEN_Y + (CEN_Y / 1.4),
     anchor='center'
 )
 
 
 def game():
+    global colors
     userHand = ['Human']
     robots = []
     players = [userHand]
     playerCards = []
+
     class Card:
         def __init__(self):
+            global colors
             i = random.randint(0, 14)
             numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'R', 'S', 'D', 'W', 'W4']
             self.number = numbers[i]
             if self.number != 'W' and self.number != 'W4':
                 j = random.randint(0, 3)
-                colors = ['yellow', 'blue', 'red', 'green']
                 self.color = colors[j]
                 self.text = 'black'
             else:
                 self.color = 'black'
-                self.text ='white'
+                self.text = 'white'
 
     currentTopCard = Card()
     if currentTopCard.color == 'black':
-        colors = ['red','yellow','green','blue']
-        r = random.randint(0,3)
+        r = random.randint(0, 3)
         currentTopCard.color = colors[r]
 
     def topCard(card):
@@ -291,7 +295,6 @@ def game():
                 c.destroy()
             userHand.pop(i)
 
-
     def displayUserCards():
         for i in range(len(userHand)):
             if userHand[i] != 'Human':
@@ -322,11 +325,11 @@ def game():
                     text=cardText,
                     bg=userHand[i].color,
                     fg=userHand[i].text,
-                    font=(FONT,fontSize),
+                    font=(FONT, fontSize),
                     command=partial(chooseChosenCard, userHand[i], i)
                 )
                 card.place(
-                    x=CEN_X + ((i - 5) * 100),
+                    x=(CEN_X - 500) + (i * 70),
                     y=CEN_Y + (CEN_Y / 2) + 50,
                     anchor='center'
                 )
@@ -360,8 +363,8 @@ def game():
             bg=COLOR_1
         )
         numAICardsLabel.place(
-            x=CEN_X+200,
-            y=CEN_Y-50,
+            x=CEN_X + 200,
+            y=CEN_Y - 50,
             anchor='center'
         )
 
@@ -378,37 +381,50 @@ def game():
         countdown = tk.Label(
             master=junoMain,
             text=countdownText,
-            font=(FONT,20),
+            font=(FONT, 20),
             bg=COLOR_1
         )
         countdown.place(
             x=CEN_X,
-            y=CEN_Y/2,
+            y=CEN_Y / 2,
             anchor='center'
         )
 
-        def colorPickerHandler(color):
-            global notPickedColor
+        colorButtons = []
+
+        def colorButtonHandler(color):
+            global colorButtons
+            global continueWaiting
             global chosenCard
             global currentTopCard
-            global continueWaiting
-            chosenCard.color = color
-            colorPicker.destroy()
-            topCard(chosenCard)
-            currentTopCard = chosenCard
-            chosenCard = ' '
+            global drawButtonNotPressed
             continueWaiting = False
-            countdown.destroy()
-            displayUserCards()
-            notPickedColor = False
+            if chosenCard.color == 'black':
+                chosenCard.color = color
 
-        colors = ['red', 'blue', 'green', 'yellow']
-        for i in range(len(colors)):
-            colorPicker = button(str(colors[i]), partial(colorPickerHandler, colors[i]), CEN_X - 300 + (i * 200),
-                                 CEN_Y + 200)
-            colorPicker.config(
-                width=150
+        global colors
+
+        colorButtonsLabel = tk.Label(
+            master=window,
+            bg=COLOR_1,
+            text="Wild Card Color:",
+            font=(FONT, 20, 'bold'),
+            image=PIXEL,
+            compound='c'
+        )
+
+        colorButtonsLabel.place(
+            x=(CEN_X - 250),
+            y=CEN_Y - 100,
+            anchor='center'
+        )
+        for b in range(4):
+            colorButtons.append(
+                button('', partial(colorButtonHandler, colors[b]), (CEN_X - 400) + (b * 100), CEN_Y - 50))
+            colorButtons[b].config(
+                bg=colors[b]
             )
+
         while continueWaiting and drawButtonNotPressed:
             junoMain.update()
             timeLeft = (30 - round((time.time() - oldtime)))
@@ -416,10 +432,7 @@ def game():
                 text="Time Left: " + str(timeLeft)
             )
             if chosenCard != ' ':
-                if chosenCard.color == 'black':
-                    while notPickedColor:
-                        print('')
-                else:
+                if chosenCard.color != 'black':
                     topCard(chosenCard)
                     currentTopCard = chosenCard
                     chosenCard = ' '
@@ -429,19 +442,20 @@ def game():
 
             if (time.time() - oldtime) > 29:
                 continueWaiting = False
-                r = random.randint(1, len(userHand)-1)
+                r = random.randint(1, len(userHand) - 1)
                 topCard(userHand[r])
                 countdown.destroy()
                 displayUserCards()
         drawButtonNotPressed = True
 
     def robotPickCard(robot):
+        global colors
         global currentTopCard
-        i = 0
+        dontPickUpCard = False
         for c in range(len(robot)):
             if robot[c].color == currentTopCard.color or robot[c].number == currentTopCard.number or robot[c].color == 'black':
+                dontPickUpCard = True
                 if robot[c].color == 'black':
-                    colors = ['red', 'green', 'blue', 'yellow']
                     randomColor = random.randint(0, 3)
                     robot[c].color = colors[randomColor]
                     topCard(robot[c])
@@ -453,12 +467,14 @@ def game():
                     robot.pop(c)
                     junoMain.update()
                     break
-            elif i > len(robot):
-                robot.append(Card())
-            i += 1
+        if not dontPickUpCard:
+            robot.append(Card())
 
     def gameLoop():
         global skipTurn
+        global reverse
+        global pickUpTwo
+        global pickUpFour
         global drawButton
         global currentTopCard
         global chosenCard
@@ -468,12 +484,16 @@ def game():
             try:
                 numberOfCards.destroy()
             except:
-                print('')
+                pass
             for p in range(len(players)):
                 if players[p][0] != 'Human':
-                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X+80+(p*80), CEN_Y)
+                    numberOfCards = button(str(len(players[p])), doesntDoAnything, CEN_X + 80 + (p * 80), CEN_Y)
             if currentTopCard.number == 'S':
                 skipTurn = True
+            if currentTopCard.number == 'D':
+                pickUpTwo = True
+            if currentTopCard.number == 'W4':
+                pickUpFour = True
             junoMain.update()
             player = players[r]
             if player[0] == 'Human':
@@ -481,8 +501,19 @@ def game():
                 if skipTurn:
                     skipTurn = False
                     currentTopCard.number = 'Z'
+                elif pickUpTwo:
+                    userHand.append(Card())
+                    userHand.append(Card())
+                    pickUpTwo = False
+                    currentTopCard.number = '+2'
+                elif pickUpFour:
+                    for a in range(4):
+                        userHand.append(Card())
+                    pickUpFour = False
+                    currentTopCard.number = '+4'
+                    displayUserCards()
                 else:
-                    drawButton = button("DRAW", drawACard, CEN_X / 2, CEN_Y)
+                    drawButton = button("DRAW", drawACard, CEN_X / 2, CEN_Y + 20)
                     drawButton.config(
                         width=170
                     )
@@ -499,30 +530,56 @@ def game():
                     )
                     playCard()
                     yourTurn.destroy()
+                    if currentTopCard.number == 'R':
+                        if reverse:
+                            reverse = False
+                        else:
+                            reverse = True
             else:
                 if skipTurn:
                     skipTurn = False
                     currentTopCard.number = 'Z'
+                elif pickUpTwo:
+                    player.append(Card())
+                    player.append(Card())
+                    pickUpTwo = False
+                    currentTopCard.number = '+2'
+                elif pickUpFour:
+                    for a in range(4):
+                        player.append(Card())
+                    pickUpFour = False
+                    currentTopCard.number = '+4'
                 else:
                     randomTime = 3
                     time.sleep(randomTime)
                     robotPickCard(player)
+                    if currentTopCard.number == 'R':
+                        if reverse:
+                            reverse = False
+                        else:
+                            reverse = True
             for t in range(len(players)):
                 if players[0] != "Human":
                     if len(players[t]) == 0:
                         noWinner = False
                         junoMain.destroy()
-                elif len(players[t]) == 1:
+                elif len(userHand) == 1:
                     noWinner = False
                     junoMain.destroy()
-            if r == numAI:
-                r = 0
+            if not reverse:
+                if r == numAI:
+                    r = 0
+                else:
+                    r += 1
             else:
-                r += 1
-
+                if r == 0:
+                    r = numAI
+                else:
+                    r -= 1
 
     gameStart()
     gameLoop()
+
 
 def changeScreen():
     for child in window.winfo_children():
