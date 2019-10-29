@@ -16,7 +16,7 @@ COLOR_3 = "#ffe28a"
 COLOR_4 = "#fb2e01"
 COLOR_5 = "#6fcb9f"
 SONG_1 = vlc.MediaPlayer("music/song1.mp3")
-FONT = "Sans-Serif"
+
 
 # Variables
 songPlaying = False
@@ -36,17 +36,6 @@ junoMain.title("Juno - The Card Game of the Gods")
 junoMain.geometry("1000x500")
 PIXEL = tk.PhotoImage(width=1, height=1)
 
-window = tk.Frame(
-    master=junoMain,
-    width=WIDTH,
-    height=HEIGHT,
-    bg=COLOR_1
-)
-window.place(
-    x=CEN_X,
-    y=CEN_Y,
-    anchor='center'
-)
 
 
 def button(text, command, x, y):
@@ -68,6 +57,39 @@ def button(text, command, x, y):
     )
     return btn
 
+def frame(master, width, height, bg, x, y):
+    frame = tk.Frame(
+        master=master,
+        width=width,
+        height=height,
+        bg=bg
+    )
+    frame.place(
+        x=x,
+        y=y,
+        anchor='center'
+    )
+    return frame
+
+
+def label(master, text, fontSize, bg, x, y):
+    FONT = "Sans-Serif"
+
+    label = tk.Label(
+        master=master,
+        text=text,
+        font=(FONT, fontSize),
+        bg=bg
+    )
+    label.place(
+        x=x,
+        y=y,
+        anchor='center'
+    )
+
+    return label
+
+window = frame(junoMain, WIDTH, HEIGHT, COLOR_1, CEN_X, CEN_Y)
 
 def playMusic():
     global songPlaying
@@ -87,42 +109,11 @@ def ruleBook():
     rules = tk.Toplevel()
     rules.title("Rule Book")
     rules.geometry("771x301")
-    rulesbg = tk.Frame(
-        master=rules,
-        width=WIDTH / 1.3,
-        height=300,
-        bg=COLOR_4
-    )
-    rulesbg.place(
-        x=WIDTH / 1.3 / 2,
-        y=300 / 2,
-        anchor='center'
-    )
-    rulesfg = tk.Frame(
-        master=rules,
-        width=WIDTH / 1.3 - 10,
-        height=HEIGHT / 2 + 40,
-        bg=COLOR_1
-    )
-    rulesfg.place(
-        x=WIDTH / 1.3 / 2,
-        y=300 / 2,
-        anchor='center'
-    )
-    rulesTitle = tk.Label(
-        master=rules,
-        text='Rules of Juno',
-        font=(FONT, 20),
-        bg=COLOR_1
-    )
-    rulesTitle.place(
-        x=WIDTH / 1.3 / 2,
-        y=300 / 2 - 100,
-        anchor='center'
-    )
-    rulesText = tk.Label(
-        master=rules,
-        text=("""
+    rulesbg = frame(rules, WIDTH/1.3, 300, COLOR_4, WIDTH/1.3/2, 150)
+    rulesfg = frame(rules, WIDTH/1.3-10,HEIGHT/2+40, COLOR_1, WIDTH/1.3/2, 150)
+
+    titleText = "Rules of Juno"
+    bodyText = """
         To play a card, it must either match the colour or number of the card on the top of the deck, unless its a wild card which can be placed on any card.
         If a card is not played, you must draw a new card from the deck.
         The player can only play one card at a time.
@@ -135,16 +126,10 @@ def ruleBook():
         Draw Two: Next player draws two cards into their deck, and forfeits their turn.
         Wild: Allows the player to change the colour of the deck.
         Wild Draw Four: Next player draws four cards into their deck, and forfeits their turn. The current player picks a new colour for the deck as well.
-        """),
-        font=(FONT, 8),
-        bg=COLOR_1
-    )
+        """
 
-    rulesText.place(
-        x=WIDTH / 1.3 / 2,
-        y=300 / 2 + 20,
-        anchor='center'
-    )
+    rulesTitle = label(rules, titleText, 20, COLOR_1, WIDTH/1.3/2, 50)
+    rulesText = label(rules, bodyText, 8, COLOR_1, WIDTH/1.3/2, 170)
 
 
 def endProgram():
@@ -157,33 +142,11 @@ creditMenu = button('Credits', creditsPage, CEN_X / 6, CEN_Y + (CEN_Y / 2))
 stopButton = button('X', endProgram, 2 * CEN_X - 50, 50)
 creditMenu.config(font=(FONT, 12))
 
-startMenu = tk.Frame(
-    master=window,
-    width=WIDTH / 1.5,
-    height=HEIGHT / 1.1,
-    bg=COLOR_3
-)
-
-startMenu.place(
-    x=CEN_X,
-    y=CEN_Y,
-    anchor='center'
-)
-
-title = tk.Label(
-    master=window,
-    fg=COLOR_4,
-    bg=COLOR_3,
-    text="JUNO",
-    font=(FONT, 100, 'bold'),
-    image=PIXEL,
-    compound='c'
-)
-
-title.place(
-    x=CEN_X,
-    y=CEN_Y / 2,
-    anchor='center'
+startMenu = frame(window, WIDTH/1.5, HEIGHT/1.1, COLOR_3, CEN_X, CEN_Y)
+title = label(window, COLOR_3, "JUNO", 100, CEN_X, CEN_Y/2)
+title.config(
+    font=("Sans-Serif", 100, 'bold'),
+    fg = COLOR_4
 )
 
 
@@ -205,19 +168,8 @@ numAIButtons = ['', '', '']
 for i in range(3):
     numAIButtons[i] = button(i + 2, partial(setAINum, i), CEN_X + ((i - 1) * 100), CEN_Y + (CEN_Y / 1.4))
 
-numAILabel = tk.Label(
-    master=window,
-    image=PIXEL,
-    compound='c',
-    text='# of AI:',
-    font=(FONT, 20),
-    bg=COLOR_3
-)
-numAILabel.place(
-    x=CEN_X / 1.6,
-    y=CEN_Y + (CEN_Y / 1.4),
-    anchor='center'
-)
+numAILabelText = '# of AI:'
+numAILabel = label(window, numAILabelText, 20, COLOR_3, CEN_X/1.6, CEN_Y+(CEN_Y/1.4))
 
 
 def game():
@@ -356,17 +308,8 @@ def game():
         for l in range(numAI):
             players.append(robots[l])
         displayUserCards()
-        numAICardsLabel = tk.Label(
-            master=junoMain,
-            text="AI Card Count:",
-            font=(FONT, 20),
-            bg=COLOR_1
-        )
-        numAICardsLabel.place(
-            x=CEN_X + 200,
-            y=CEN_Y - 50,
-            anchor='center'
-        )
+        numAICardsLabelText
+        numAICardsLabel = label(junoMain, numAICardsLabelText, 20, COLOR_1, CEN_X+200, CEN_Y-50)
 
     def playCard():
         displayUserCards()
@@ -378,17 +321,8 @@ def game():
         oldtime = time.time()
         timeLeft = (30 - (time.time() - oldtime))
         countdownText = "Time Left: " + str(timeLeft)
-        countdown = tk.Label(
-            master=junoMain,
-            text=countdownText,
-            font=(FONT, 20),
-            bg=COLOR_1
-        )
-        countdown.place(
-            x=CEN_X,
-            y=CEN_Y / 2,
-            anchor='center'
-        )
+
+        countdown = label(junoMain, countdownText, 20, COLOR_1, CEN_X, CEN_Y/2)
 
         colorButtons = []
 
@@ -403,21 +337,12 @@ def game():
                 chosenCard.color = color
 
         global colors
-
-        colorButtonsLabel = tk.Label(
-            master=window,
-            bg=COLOR_1,
-            text="Wild Card Color:",
-            font=(FONT, 20, 'bold'),
-            image=PIXEL,
-            compound='c'
+        colorButtonsLabelText = "Wild Card Color:"
+        colorButtonsLabel = label(window, colorButtonsLabelText, 20, COLOR_1, CEN_X-250, CEN_Y-100)
+        colorButtonsLabel.config(
+            font=("Sans-Serif", 20, 'bold')
         )
 
-        colorButtonsLabel.place(
-            x=(CEN_X - 250),
-            y=CEN_Y - 100,
-            anchor='center'
-        )
         for b in range(4):
             colorButtons.append(
                 button('', partial(colorButtonHandler, colors[b]), (CEN_X - 400) + (b * 100), CEN_Y - 50))
@@ -517,17 +442,7 @@ def game():
                     drawButton.config(
                         width=170
                     )
-                    yourTurn = tk.Label(
-                        master=junoMain,
-                        text="Your Turn!",
-                        font=(FONT, 30),
-                        bg=COLOR_1
-                    )
-                    yourTurn.place(
-                        x=CEN_X,
-                        y=CEN_Y / 4,
-                        anchor='center'
-                    )
+                    yourTurn = label(junoMain, "Your Turn!", 30, COLOR_1, CEN_X, CEN_Y/4)
                     playCard()
                     yourTurn.destroy()
                     if currentTopCard.number == 'R':
