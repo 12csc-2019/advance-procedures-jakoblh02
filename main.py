@@ -562,6 +562,7 @@ def game():
                         else:
                             reverse = True
             else:
+                # Checks if the top card is a skip, draw2 or draw4
                 if skipTurn:
                     skipTurn = False
                     currentTopCard.number = 'Z'
@@ -576,14 +577,16 @@ def game():
                     pickUpFour = False
                     currentTopCard.number = '+4'
                 else:
-                    randomTime = 3
-                    time.sleep(randomTime)
+                    # Waits a bit so it doesn't speed through
+                    time.sleep(3)
+                    # calls function that allows robots to be play a card
                     robotPickCard(player)
                     if currentTopCard.number == 'R':
                         if reverse:
                             reverse = False
                         else:
                             reverse = True
+            # Checks if someone has won
             for t in range(len(players)):
                 if players[0] != "Human":
                     if len(players[t]) == 0:
@@ -592,6 +595,7 @@ def game():
                 elif len(userHand) == 1:
                     noWinner = False
                     junoMain.destroy()
+            # if statement that checks the direction and rotates who is the current player
             if not reverse:
                 if r == numAI:
                     r = 0
@@ -606,7 +610,7 @@ def game():
     gameStart()
     gameLoop()
 
-
+# function that changes the screen into the game
 def changeScreen():
     for child in window.winfo_children():
         if child != music and child != ruleBookMenu and child != stopButton:
@@ -623,8 +627,9 @@ def changeScreen():
     )
     game()
 
-
+# button that starts game
 start = button('START', changeScreen, CEN_X, CEN_Y + (CEN_Y / 2) / 2)
 start.config(width=250, height=100, font=("Sans-Serif", 50, 'bold'))
 
+# intitiates tkinter window
 junoMain.mainloop()
